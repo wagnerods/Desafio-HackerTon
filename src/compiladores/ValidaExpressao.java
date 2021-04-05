@@ -1,36 +1,49 @@
 package compiladores;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
-
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class ValidaExpressao {
 
+	static Scanner scan;
+	static PrintWriter pWriter;
+	static FileWriter fWriter;
+
 	public static void main(String[] args) {
-		Scanner scan = null;
 		try {
-			scan = new Scanner(new File("teste.txt"));
-		} catch (FileNotFoundException e) {			
+			fWriter = new FileWriter("./src/prog-check.txt");
+			pWriter = new PrintWriter(fWriter);
+			scan = new Scanner(new File("./src/prog.txt"), "UTF-8");
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+
 		while (scan.hasNextLine()) {
 			String line = scan.nextLine();
-			
-			// Chamando a função passando a expressão como parâmetro
-			if (estaValido(line))
-				System.out.println(line + " - Válido ");
-			else
-				System.out.println(line + " - Inválido ");
+
+			if (estaValido(line)) {
+				pWriter.write("\n" + line + " - OK" + "\n");
+				System.out.println(line + " - OK ");
+				pWriter.flush();
+
+			} else {
+				pWriter.append(line + " - Inválido");
+				System.out.println("\n" + line + " - Inválido " + "\n");
+				pWriter.flush();
+			}
 		}
 	}
 
-	// Função para checar se está valido a expressão
 	public static boolean estaValido(String expr) {
 
 		Deque<Character> pilha = new ArrayDeque<Character>();
 
-		// Lendo a expressão
 		for (int i = 0; i < expr.length(); i++) {
 
 			char x = expr.charAt(i);
@@ -40,36 +53,35 @@ public class ValidaExpressao {
 				continue;
 			}
 
-			// SE o caractere atual atual não estiver abrindo
-			// colchete, então ele deve estar fechando. Então empilhe
-			// não pode estar vazio neste ponto.
-
-			if (pilha.isEmpty())
+			if (pilha.isEmpty()) {
 				return false;
+			}
 
 			char check;
 			switch (x) {
 			case ')':
 				check = pilha.pop();
-				if (check == '{' || check == '[')
+				if (check == '{' || check == '[') {
 					return false;
+				}
 				break;
 
 			case '}':
 				check = pilha.pop();
-				if (check == '(' || check == '[')
+				if (check == '(' || check == '[') {
 					return false;
+				}
 				break;
 
 			case ']':
 				check = pilha.pop();
-				if (check == '(' || check == '{')
+				if (check == '(' || check == '{') {
 					return false;
+				}
 				break;
 			}
 		}
 
-		// verificar se a pilha está vazia
 		return (pilha.isEmpty());
 	}
 }
